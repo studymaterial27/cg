@@ -1,14 +1,13 @@
-//DDA Line Drawing Algorithm
+
 #include<GL/glut.h>
 #include<stdlib.h>
 #include<iostream>
 using namespace std;
 
-float x1,x2,y3,y4;
+float x1,x2,y3,y4,dy,dx,length,x,y,k,Xin,Yin;
 void simpleline();
 void DashedLine();
 void DottedLine();
-float dy,dx,length,x,y,k,Xin,Yin;
 
 void display()
 {
