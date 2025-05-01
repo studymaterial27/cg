@@ -1,0 +1,90 @@
+#include <GL/glut.h>
+#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+int choice, edges;
+vector<int> pntX, pntY;
+int tx, ty;
+double sx, sy, angle;
+
+void drawPolygon(float r, float g, float b, const vector<int>& x, const vector<int>& y) 
+{
+    glColor3f(r, g, b);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < edges; i++)
+        glVertex2i(x[i], y[i]);
+    glEnd();
+}
+
+void transformAndDraw() 
+{
+    drawPolygon(1, 0, 0, pntX, pntY); // original in red
+
+    vector<int> txX(edges), txY(edges);
+    for (int i = 0; i < edges; i++) 
+    {
+        if (choice == 1) 
+        {  // Translation
+            txX[i] = pntX[i] + tx; txY[i] = pntY[i] + ty;
+        } else if (choice == 2) 
+        {  // Scaling
+            txX[i] = round(pntX[i] * sx); txY[i] = round(pntY[i] * sy);
+        }
+        else if (choice == 3) 
+        {  // Rotation
+            txX[i] = round(pntX[i]*cos(angle) - pntY[i]*sin(angle));
+            txY[i] = round(pntX[i]*sin(angle) + pntY[i]*cos(angle));
+        }
+    }
+
+    drawPolygon(0, 1, 0, txX, txY); // transformed in green
+    glFlush();
+}
+
+void display() 
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    transformAndDraw();
+}
+
+int main(int argc, char** argv) 
+{
+    cout << "1. Translation\n2. Scaling\n3. Rotation\nChoice: ";
+    cin >> choice;
+    cout << "Enter number of edges: "; 
+    cin >> edges;
+
+    pntX.resize(edges); pntY.resize(edges);
+    for (int i = 0; i < edges; i++) 
+    {
+        cout << "Vertex " << i+1 << " (x y): ";
+        cin >> pntX[i] >> pntY[i];
+    }
+
+    if (choice == 1) 
+    {
+        cout << "Translate X Y: "; cin >> tx >> ty;
+    } else if (choice == 2) 
+    {
+        cout << "Scale X Y: "; cin >> sx >> sy;
+    } else if (choice == 3) 
+    {
+        cout << "Angle in degrees: ";
+        double deg; cin >> deg;
+        angle = deg * M_PI / 180;
+    } 
+    else return 0;
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(640, 480);
+    glutCreateWindow("2D Transformations");
+    glClearColor(1, 1, 1, 1);
+    gluOrtho2D(0, 640, 0, 480);
+    glutDisplayFunc(display);
+    glutMainLoop();
+    return 0;
+}
+
