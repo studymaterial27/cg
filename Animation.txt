@@ -2,58 +2,49 @@
 
 float rt = 1; 
 
-
-void init(int Width, int Height)
+void draw()
 {
-    glClearColor(1,1,1,1); 
-    glMatrixMode(GL_PROJECTION);
-    gluPerspective(45, (GLfloat)Width / (GLfloat)Height, 0.1, 50);
-    glMatrixMode(GL_MODELVIEW);
-}
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
+    glLoadIdentity();  
+    glTranslatef(rt, 0.0f, -6.0f);  
 
-void Draw()
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
-
-    
-    glTranslatef(rt, 0, -6);
-
-    
-    glColor3f(1.0, 1.0, 0.0f); 
+    glColor3f(1.0f, 1.0f, 0.0f);  
     glBegin(GL_POLYGON);
-    glVertex3f(-1.0f, 1.0f, 0.0f);
-    glVertex3f(0.4f, 1.0f, 0.0f);
-    glVertex3f(1.0f, 0.4f, 0.0f);
-    glVertex3f(1.0f, 0.0f, 0.0f);
-    glVertex3f(-1.0f, 0.0f, 0.0f);
+        glVertex3f(-1.0f, 1.0f, 0.0f);
+        glVertex3f(0.4f, 1.0f, 0.0f);
+        glVertex3f(1.0f, 0.4f, 0.0f);
+        glVertex3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(-1.0f, 0.0f, 0.0f);
     glEnd();
 
-   
-    glColor3f(1.0, 0.0, 1.0); 
-    glTranslatef(-0.5f, -0.4f, 0.0f); 
-    glutSolidSphere(0.3, 20, 20); 
-    glTranslatef(1.5f, 0.0f, 0.0f); 
-    glutSolidSphere(0.3, 20, 20); 
+  
+    glColor3f(1.0f, 0.0f, 1.0f); 
+    glTranslatef(-0.5f, -0.4f, 0.0f);
+    glutSolidSphere(0.3f, 20, 20);  
+    glTranslatef(1.5f, 0.0f, 0.0f);  
+    glutSolidSphere(0.3f, 20, 20);  
 
-    rt += 0.005f;
-    if (rt > 2.0f) {
-        rt = -2.0f; 
-    }
+    rt += 0.005f; 
+    if (rt > 2.0f)  
+        rt = -2.0f;
 
-    glutSwapBuffers();
+    glutSwapBuffers();  
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH); 
-    glutInitWindowSize(640, 480);
-    glutCreateWindow("Moving Car");
-    glutDisplayFunc(Draw); 
-    glutIdleFunc(Draw); 
-    init(640, 480); 
-    glutMainLoop();
-    return 0;
-}
+    glutInit(&argc, argv);  
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);  
+    glutInitWindowSize(640, 480);  
+    glutCreateWindow("Vehicle Animation"); 
 
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  
+    glMatrixMode(GL_PROJECTION); 
+    gluPerspective(45.0f, 640.0f / 480.0f, 1.0f, 50.0f);  
+    glMatrixMode(GL_MODELVIEW); 
+
+    glutDisplayFunc(draw);  
+    glutIdleFunc(draw);     
+
+    glutMainLoop();  
+}
