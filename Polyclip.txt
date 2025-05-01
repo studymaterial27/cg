@@ -1,0 +1,121 @@
+#include <GL/glut.h>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct Point { int x, y; };
+vector<Point> polygon;
+int wxmin, wxmax, wymin, wymax;
+
+
+void drawPolygon(const vector<Point>& poly, float r, float g, float b)
+{
+    glColor3f(r, g, b);
+    glBegin(GL_LINE_LOOP);
+    for (auto& p : poly)
+        glVertex2i(p.x, p.y);
+    glEnd();
+}
+
+void drawClippingWindow() 
+
+{
+    glColor3f(0, 1, 0);
+    glBegin(GL_LINE_LOOP);
+    glVertex2i(wxmin, wymin); glVertex2i(wxmin, wymax);
+    glVertex2i(wxmax, wymax); glVertex2i(wxmax, wymin);
+    glEnd();
+}
+
+Point intersect(Point a, Point b, int edge, char side) 
+{
+    float m = (b.x - a.x) ? (float)(b.y - a.y) / (b.x - a.x) : 1e5;
+    Point p;
+    switch (side) 
+    {
+        case 'l': p.x = edge; p.y = a.y + m * (edge - a.x); break;
+        case 'r': p.x = edge; p.y = a.y + m * (edge - a.x); break;
+        case 'b': p.y = edge; p.x = a.x + (edge - a.y) / m; break;
+        case 't': p.y = edge; p.x = a.x + (edge - a.y) / m; break;
+    }
+    return p;
+}
+
+bool inside(Point p, int edge, char side) 
+{
+    if (side == 'l') return p.x >= edge;
+    if (side == 'r') return p.x <= edge;
+    if (side == 'b') return p.y >= edge;
+    return p.y <= edge; // top
+}
+
+vector<Point> clipSide(const vector<Point>& input, int edge, char side) 
+{
+    vector<Point> output;
+    int n = input.size();
+    for (int i = 0; i < n; ++i)
+    {
+        Point cur = input[i];
+        Point next = input[(i + 1) % n];
+        bool inCur = inside(cur, edge, side);
+        bool inNext = inside(next, edge, side);
+
+        if (inCur && inNext)
+            output.push_back(next);
+        else if (inCur && !inNext)
+            output.push_back(intersect(cur, next, edge, side));
+        else if (!inCur && inNext) 
+        {
+            output.push_back(intersect(cur, next, edge, side));
+            output.push_back(next);
+        }
+    }
+    return output;
+}
+
+void clipAndDraw() 
+{
+    vector<Point> clipped = polygon;
+    clipped = clipSide(clipped, wxmin, 'l');
+    clipped = clipSide(clipped, wxmax, 'r');
+    clipped = clipSide(clipped, wymin, 'b');
+    clipped = clipSide(clipped, wymax, 't');
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawClippingWindow();
+    drawPolygon(polygon, 1, 1, 1);    // Original in white
+    drawPolygon(clipped, 1, 0, 0);    // Clipped in red
+    glFlush();
+}
+
+void display() 
+{
+    clipAndDraw();
+}
+
+int main(int argc, char** argv) 
+{
+    int n;
+    cout << "Enter clipping window (xmin ymin xmax ymax): ";
+    cin >> wxmin >> wymin >> wxmax >> wymax;
+
+    cout << "Enter number of polygon vertices: ";
+    cin >> n;
+    polygon.resize(n);
+    for (int i = 0; i < n; ++i) 
+    {
+        cout << "Vertex " << i + 1 << " (x y): ";
+        cin >> polygon[i].x >> polygon[i].y;
+    }
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(800, 800);
+    glutCreateWindow("Polygon Clipping");
+   glClearColor(0, 0, 0, 1);
+    gluOrtho2D(-600, 600, -600, 600);
+    glutDisplayFunc(display);
+    glutMainLoop();
+    return 0;
+}
+
